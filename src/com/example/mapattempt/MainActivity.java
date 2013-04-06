@@ -24,77 +24,6 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
 public class MainActivity extends FragmentActivity {
-
-	
-	public class Caller implements Runnable{
-
-		public double lat;
-		public double lon;
-		public int dist;
-		public GoogleMap map;
-		
-		public Caller(double lat, double lon, int dist, GoogleMap map){
-			this.lat = lat;
-			this.lon = lon;
-			this.dist = dist;
-			this.map = map;
-		}
-		
-		@Override
-		public void run() {
-			Log.d("Got here","5");
-			AsyncHttpClient client = new AsyncHttpClient();
-			RequestParams params = new RequestParams();
-			params.put("latitude", Double.toString(lat));
-			params.put("longitude", Double.toString(lon));
-			params.put("distance_in_miles", Integer.toString(dist));
-			client.get("http://redlights.herokuapp.com/in_proximity_of",params ,new JsonHttpResponseHandler() {
-			    @Override
-			    public void onSuccess(JSONArray red_lights) {
-			        for (int i = 0; i < red_lights.length(); i++) {
-						try {
-							JSONObject redLight = red_lights.getJSONObject(i);
-							//placeOnMap(redLight);
-						 	double thisLon = redLight.getDouble("longitude");
-						 	double thisLat = redLight.getDouble("latitude");
-						 	String name = redLight.getString("name");
-						 	String city = redLight.getString("city");
-						 	String state = redLight.getString("state");
-						
-						 	map.addMarker(new MarkerOptions()
-					        .position(new LatLng(thisLat, thisLon))
-					        .title(name)
-					        .snippet(city + ", " + state));
-						 	
-
-						 	//CREATE AND ADD MARKERS HERE
-						 	/*static final LatLng LIGHT = new LatLng(thisLat, thisLon);
-						 	Marker light = mMap.addMarker(new MarkerOptions()
-						 	                          .position(LIGHT)
-						 	                          .title(name)
-						 	                          .snippet(city + ", " + state));*/
-						 	
-						 	
-							Log.d("FOUND RED LIGHT",name);
-							Log.d("city",city);
-							Log.d("state",state);
-						} catch (JSONException e) {
-							// TODO Auto-generated catch block
-							
-							Log.d("JSON ERROR", e.getMessage());
-						}
-						
-					}
-			    }
-			});	
-			// TODO Auto-generated method stub
-			
-		}
-		
-	};
-	
-	Caller caller;
-	
 	
 	
 	@Override
@@ -115,9 +44,9 @@ public class MainActivity extends FragmentActivity {
 		final boolean gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
 		
 		//If the GPS is not turned on, add it to the map
-		if (!gpsEnabled) {
+		/*if (!gpsEnabled) {
 			enableLocationSettings();
-		}
+		}*/
 		
 
 		
@@ -129,9 +58,7 @@ public class MainActivity extends FragmentActivity {
 		String provider = locationManager.getBestProvider(criteria, true);
 		Location location = locationManager.getLastKnownLocation(provider);
 		MyLocationListener currentLocation = new MyLocationListener(location.getLatitude(), location.getLongitude(), map);
-		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 600000, 8046, currentLocation);
-		caller = new Caller(location.getLatitude(),location.getLongitude(), 5, map);
-		caller.run();
+		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 50, currentLocation);
 	}
 	private void enableLocationSettings() {
 		Log.d("Got here","3");
@@ -143,7 +70,7 @@ public class MainActivity extends FragmentActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		Log.d("Got here","4");
 		// Inflate the menu; this adds items to the action bar if it is present.
-		//getMenuInflater().inflate(R.menu.main, menu);
+		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
 
